@@ -15,6 +15,7 @@ public class Main {
 
     public static void main(String[] args)
     {
+        //안녕
         AcceptServer acceptServer = new AcceptServer();
         ServerLogPanel serverLogPanel = new ServerLogPanel();
         serverLogPanel.setStartEvent(new ActionListener() {
