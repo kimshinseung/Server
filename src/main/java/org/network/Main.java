@@ -1,5 +1,7 @@
 package org.network;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -13,7 +15,15 @@ public class Main {
 
     public static void main(String[] args)
     {
-        AcceptServer acceptServer = new AcceptServer(30000);
-        acceptServer.start();
+        AcceptServer acceptServer = new AcceptServer();
+        ServerLogPanel serverLogPanel = new ServerLogPanel();
+        serverLogPanel.setStartEvent(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                acceptServer.createServer();
+                acceptServer.start();
+            }
+        });
+
     }
 }
