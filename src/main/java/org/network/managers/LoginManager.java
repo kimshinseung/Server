@@ -1,5 +1,6 @@
 package org.network.managers;
 
+import org.network.AcceptServer;
 import org.network.ServerLogPanel;
 import org.network.UserData;
 import org.network.packet.LoginPacket;
@@ -20,10 +21,13 @@ public class LoginManager {
         ServerLogPanel.appendText(loginPacket.username + " Login failed");
         return false;
     }
-    public static void sendAccept(String target){
-
-    }
-    public static void createUser(LoginPacket loginPacket) {
+    public static boolean createUser(LoginPacket loginPacket) {
+        for (UserData userData : userList.values()){
+            if (userData.userName.equals(loginPacket.username)){
+                ServerLogPanel.appendText("account of username[" + loginPacket.username + "] already exist.");
+                return false;
+            }
+        }
         int i = 0;
         while (userList.containsKey(i)){
             i++;
@@ -34,11 +38,12 @@ public class LoginManager {
             userData.id = i;
             userData.userName = loginPacket.username;
             userList.put(i,userData);
+            ServerLogPanel.appendText("User : " + loginPacket.username + " has created. User identification Id : " + i);
+            return true;
         }
         catch (Exception exception){
             ServerLogPanel.appendText("User : " + loginPacket.username + " creation failed.");
-            return;
+            return false;
         }
-        ServerLogPanel.appendText("User : " + loginPacket.username + " has created. User identification Id : " + i);
     }
 }

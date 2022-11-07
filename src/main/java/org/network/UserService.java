@@ -8,8 +8,6 @@ import org.network.packet.UserChatPacket;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.Vector;
 
 public class UserService extends Thread{
     public UserData userData = new UserData();
@@ -54,13 +52,13 @@ public class UserService extends Thread{
     public void Logout() {
 
         try {
-            AcceptServer.getUserVec().removeElement(this);
+            AcceptServer.removeUser(this);
             oos.close();
             ois.close();
         } catch (IOException e) {
             //ignored
         }
-        ServerLogPanel.appendText("User "+(userData.userName!=null?userData.userName:"unknown(Login session)")+" disconnected.");
+        ServerLogPanel.appendText("Player "+(userData.userName!=null?userData.userName:"unknown(Login session)")+" disconnected.");
     }
     public void run() {
         while (true) {
@@ -75,7 +73,6 @@ public class UserService extends Thread{
                 }
                 try {
                     obcm = ois.readObject();
-
                 } catch (ClassNotFoundException e) {
                     ServerLogPanel.appendText("Packet broken");
                     e.printStackTrace();
@@ -85,16 +82,37 @@ public class UserService extends Thread{
                     ServerLogPanel.appendText("Object null");
                     break;
                 }
+                //오브젝트 입력 처리
+                //로그인 입력 처리
                 if (obcm instanceof LoginPacket loginPacket){
                     ServerLogPanel.appendText("===Login Task===");
+                    LoginPacket responsePacket = new LoginPacket(-1, LoginPacketType.LOGIN_ACCEPT, "", "");
                     if (loginPacket.loginPacketType == LoginPacketType.LOGIN){
-                        LoginManager.checkUser(loginPacket);
+                        if (LoginManager.checkUser(loginPacket)){
+                            //로그인 성공 패킷 송신
+                            sendObject(responsePacket);
+                        }
+                        else {
+                            //로그인 실패 패킷 송신
+                            responsePacket.loginPacketType = LoginPacketType.LOGIN_REFUSE;
+                            sendObject(responsePacket);
+                        }
                     }
                     if (loginPacket.loginPacketType==LoginPacketType.SIGN_IN){
-                        LoginManager.createUser(loginPacket);
+                        if (LoginManager.createUser(loginPacket)){
+                            //회원가입 성공 패킷 송신
+                            responsePacket.loginPacketType = LoginPacketType.SIGN_IN_ACCEPT;
+                            sendObject(responsePacket);
+                        }
+                        else {
+                            //회원가입 실패 패킷 송신
+                            responsePacket.loginPacketType = LoginPacketType.SIGN_IN_REFUSE;
+                            sendObject(responsePacket);
+                        }
                     }
                     continue;
                 }
+                //채팅 입력 처리
                 if (obcm instanceof UserChatPacket userChatPacket){
                     ChatManager.sendMessage(userChatPacket);
                     continue;
@@ -107,9 +125,13 @@ public class UserService extends Thread{
         }
     }
     public void SendMsg(UserChatPacket userChatPacket) {
-        SendObject(userChatPacket);
+        sendObject(userChatPacket);
     }
-    public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
+    public void SendMsg(int id,String username,String str,String target){
+        UserChatPacket userChatPacket = new UserChatPacket(id, username, str, target);
+        sendObject(userChatPacket);
+    }
+    public void sendObject(Object ob) { // 서버로 메세지를 보내는 메소드
         try {
             oos.writeObject(ob);
         } catch (IOException e) {

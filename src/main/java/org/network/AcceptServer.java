@@ -10,6 +10,17 @@ public class AcceptServer extends Thread {
     public static final int BUF_LEN = 128;
     private ServerSocket socket;
     private static final Vector<UserService> userVec = new Vector<UserService>();
+    public static void removeUser(UserService userService) {
+        try{
+            userVec.removeElement(userService);
+        }
+        catch (Exception e){
+            ServerLogPanel.appendText("User remove error.");
+            ServerLogPanel.appendText(e.getMessage());
+        }
+        ServerLogPanel.appendText("Player exited server. Remaining Players : " + userVec.size());
+    }
+
     public void createServer(){
         try {
             socket = new ServerSocket(CurrentPort);
@@ -18,7 +29,6 @@ public class AcceptServer extends Thread {
             System.exit(0);
         }
     }
-    @SuppressWarnings("unchecked")
     public void run() {
         while (true)
         {
@@ -33,7 +43,13 @@ public class AcceptServer extends Thread {
             }
         }
     }
-
+    public static void sendPacketByUsername(String username ,Object ob){
+        for (UserService userService : userVec){
+            if (userService.userData.userName.equals(username)){
+                userService.sendObject(ob);
+            }
+        }
+    }
     public static Vector<UserService> getUserVec() {
         return userVec;
     }

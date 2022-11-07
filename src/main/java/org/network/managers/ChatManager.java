@@ -12,7 +12,7 @@ import java.util.Vector;
 public class ChatManager {
     public static void sendMessage(UserChatPacket userChatPacket){
         Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일 HH시 mm분");
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd HH:mm");
         String createdMsg = "["+formatter.format(date)+"]"+"["+userChatPacket.username+"]"+userChatPacket.chat;
         ServerLogPanel.appendText("["+userChatPacket.target+"]"+createdMsg);
         userChatPacket.chat = createdMsg;
