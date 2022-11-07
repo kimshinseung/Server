@@ -52,8 +52,15 @@ public class UserService extends Thread{
         return packet;
     }
     public void Logout() {
-        AcceptServer.getUserVec().removeElement(this);
 
+        try {
+            AcceptServer.getUserVec().removeElement(this);
+            oos.close();
+            ois.close();
+        } catch (IOException e) {
+            //ignored
+        }
+        ServerLogPanel.appendText("User "+(userData.userName!=null?userData.userName:"unknown(Login session)")+" disconnected.");
     }
     public void run() {
         while (true) {
@@ -94,7 +101,8 @@ public class UserService extends Thread{
                 }
             }
             catch (Exception exception){
-
+                Logout();
+                return;
             }
         }
     }
