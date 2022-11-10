@@ -10,16 +10,16 @@ import java.util.*;
 
 public class LoginManager {
     private static Map<Integer, UserData> userList = new HashMap<>();
-    public static boolean checkUser(LoginPacket loginPacket) {
+    public static int checkUser(LoginPacket loginPacket) {
         Collection<UserData> usersData = userList.values();
         for (UserData userData : usersData){
             if (userData.userName.equals(loginPacket.username) && userData.password.equals(loginPacket.password)){
                 ServerLogPanel.appendText(loginPacket.username + " Login success");
-                return true;
+                return userData.id;
             }
         }
         ServerLogPanel.appendText(loginPacket.username + " Login failed");
-        return false;
+        return -1;
     }
     public static boolean createUser(LoginPacket loginPacket) {
         for (UserData userData : userList.values()){

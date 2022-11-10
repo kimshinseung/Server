@@ -86,10 +86,12 @@ public class UserService extends Thread{
                 //로그인 입력 처리
                 if (obcm instanceof LoginPacket loginPacket){
                     ServerLogPanel.appendText("===Login Task===");
-                    LoginPacket responsePacket = new LoginPacket(-1, LoginPacketType.LOGIN_ACCEPT, "", "");
+                    LoginPacket responsePacket = new LoginPacket(-1, LoginPacketType.LOGIN_ACCEPT, loginPacket.username, "");
                     if (loginPacket.loginPacketType == LoginPacketType.LOGIN){
-                        if (LoginManager.checkUser(loginPacket)){
+                        int result = LoginManager.checkUser(loginPacket);
+                        if (result >= 0){
                             //로그인 성공 패킷 송신
+                            responsePacket.id = result;
                             sendObject(responsePacket);
                         }
                         else {
@@ -125,6 +127,7 @@ public class UserService extends Thread{
         }
     }
     public void SendMsg(UserChatPacket userChatPacket) {
+        ServerLogPanel.appendText("Send");
         sendObject(userChatPacket);
     }
     public void SendMsg(int id,String username,String str,String target){
@@ -134,6 +137,7 @@ public class UserService extends Thread{
     public void sendObject(Object ob) { // 서버로 메세지를 보내는 메소드
         try {
             oos.writeObject(ob);
+            ServerLogPanel.appendText("Send end");
         } catch (IOException e) {
             ServerLogPanel.appendText("SendObject Error");
         }
