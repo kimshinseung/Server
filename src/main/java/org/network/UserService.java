@@ -5,6 +5,7 @@ import org.network.managers.LoginManager;
 import org.network.packet.LoginPacket;
 import org.network.packet.LoginPacketType;
 import org.network.packet.UserChatPacket;
+import org.network.packet.UserListPacket;
 
 import java.io.*;
 import java.net.Socket;
@@ -58,7 +59,8 @@ public class UserService extends Thread{
         } catch (IOException e) {
             //ignored
         }
-        ServerLogPanel.appendText("Player "+(userData.userName!=null?userData.userName:"unknown(Login session)")+" disconnected.");
+        ServerLogPanel.appendText("Player " + (userData.userName != null ? userData.userName : "unknown(Login session)") + " disconnected.");
+        updateUserList();
     }
     public void run() {
         while (true) {
@@ -92,7 +94,9 @@ public class UserService extends Thread{
                         if (result >= 0){
                             //로그인 성공 패킷 송신
                             responsePacket.id = result;
+                            userData.userName = loginPacket.username;
                             sendObject(responsePacket);
+                            updateUserList();
                         }
                         else {
                             //로그인 실패 패킷 송신
@@ -125,6 +129,14 @@ public class UserService extends Thread{
                 return;
             }
         }
+    }
+    private void updateUserList(){
+        UserListPacket userListPacket = new UserListPacket(
+                -1,
+                "Server",
+                AcceptServer.getUsernameList()
+        );
+        AcceptServer.sendObjectToAll(userListPacket);
     }
     public void SendMsg(UserChatPacket userChatPacket) {
         ServerLogPanel.appendText("Send");

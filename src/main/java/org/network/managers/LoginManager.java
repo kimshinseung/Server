@@ -5,6 +5,7 @@ import org.network.ServerLogPanel;
 import org.network.UserData;
 import org.network.packet.LoginPacket;
 import org.network.packet.LoginPacketType;
+import org.network.packet.UserListPacket;
 
 import java.util.*;
 

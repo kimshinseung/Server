@@ -3,6 +3,8 @@ package org.network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class AcceptServer extends Thread {
@@ -20,7 +22,6 @@ public class AcceptServer extends Thread {
         }
         ServerLogPanel.appendText("Player exited server. Remaining Players : " + userVec.size());
     }
-
     public void createServer(){
         try {
             socket = new ServerSocket(CurrentPort);
@@ -43,12 +44,25 @@ public class AcceptServer extends Thread {
             }
         }
     }
+    //대상한테 오브젝트를 전송합니다.
     public static void sendPacketByUsername(String username ,Object ob){
         for (UserService userService : userVec){
             if (userService.userData.userName.equals(username)){
                 userService.sendObject(ob);
             }
         }
+    }
+    public static void sendObjectToAll(Object ob){
+        for (UserService userService : userVec){
+            userService.sendObject(ob);
+        }
+    }
+    public static List<String> getUsernameList(){
+        List<String> result = new ArrayList<>();
+        for (UserService userService : userVec){
+            result.add(userService.userData.userName);
+        }
+        return result;
     }
     public static Vector<UserService> getUserVec() {
         return userVec;
