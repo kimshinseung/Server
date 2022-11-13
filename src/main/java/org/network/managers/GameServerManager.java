@@ -36,6 +36,7 @@ public class GameServerManager extends Thread{
         Vector<UserService> userVec = AcceptServer.getUserVec();
         List<UserMoveData> userMoveList = new ArrayList<>();
         for (UserService user : userVec){
+            if (user.userData.userName == null) continue;
             userMoveList.add(new UserMoveData(user.userData.userName,user.userData.seeDirection,new Point(user.userData.currentPos)));
         }
         UserMoveListPacket userMoveListPacket = new UserMoveListPacket(
