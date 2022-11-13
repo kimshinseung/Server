@@ -1,5 +1,7 @@
 package org.network;
 
+import org.network.managers.GameServerManager;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.DataInputStream;
@@ -17,6 +19,7 @@ public class Main {
     {
 
         AcceptServer acceptServer = new AcceptServer();
+        GameServerManager.current.start();
         ServerLogPanel serverLogPanel = new ServerLogPanel();
         serverLogPanel.setStartEvent(new ActionListener() {
             @Override

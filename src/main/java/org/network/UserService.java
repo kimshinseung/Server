@@ -1,11 +1,10 @@
 package org.network;
 
 import org.network.managers.ChatManager;
+import org.network.managers.GameConfig;
+import org.network.managers.GameServerManager;
 import org.network.managers.LoginManager;
-import org.network.packet.LoginPacket;
-import org.network.packet.LoginPacketType;
-import org.network.packet.UserChatPacket;
-import org.network.packet.UserListPacket;
+import org.network.packet.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -123,6 +122,24 @@ public class UserService extends Thread{
                     ChatManager.sendMessage(userChatPacket);
                     continue;
                 }
+                if (obcm instanceof UserMovePacket userMovePacket){
+                    //ServerLogPanel.appendText("Receive move packet" + userMovePacket.direction.x+"/" + userMovePacket.direction.y);
+                    userData.currentPos.x += userMovePacket.direction.x * GameConfig.UserSpeed;
+                    userData.currentPos.y += userMovePacket.direction.y * GameConfig.UserSpeed;
+                    if (userMovePacket.direction.x == 1){
+                        userData.seeDirection = 1;
+                    }
+                    else if (userMovePacket.direction.x == -1){
+                        userData.seeDirection = 3;
+                    }
+                    if (userMovePacket.direction.y == 1){
+                        userData.seeDirection = 2;
+                    }
+                    else if (userMovePacket.direction.y == -1){
+                        userData.seeDirection = 0;
+                    }
+                    GameServerManager.setIsLobbyUpdated(true);//게임 관리자에게 자신이 업데이트 되었음을 알림
+                }
             }
             catch (Exception exception){
                 Logout();
@@ -149,7 +166,6 @@ public class UserService extends Thread{
     public void sendObject(Object ob) { // 서버로 메세지를 보내는 메소드
         try {
             oos.writeObject(ob);
-            ServerLogPanel.appendText("Send end");
         } catch (IOException e) {
             ServerLogPanel.appendText("SendObject Error");
         }

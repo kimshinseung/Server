@@ -7,6 +7,7 @@ public enum PacketType {
     USER_BATTLE(300),
     USER_MOVE(500),
     USER_LIST_DATA(600),
+    USER_MOVE_LIST_DATA(700),
     SERVER_DEFAULT(1000);
     private final int environments;
 
