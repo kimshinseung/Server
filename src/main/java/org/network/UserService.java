@@ -1,7 +1,6 @@
 package org.network;
 
 import org.network.managers.ChatManager;
-import org.network.managers.GameConfig;
 import org.network.managers.GameServerManager;
 import org.network.managers.LoginManager;
 import org.network.packet.*;
@@ -124,21 +123,21 @@ public class UserService extends Thread{
                 }
                 if (obcm instanceof UserMovePacket userMovePacket){
                     //ServerLogPanel.appendText("Receive move packet" + userMovePacket.direction.x+"/" + userMovePacket.direction.y);
-                    userData.currentPos.x += userMovePacket.direction.x * GameConfig.UserSpeed;
-                    userData.currentPos.y += userMovePacket.direction.y * GameConfig.UserSpeed;
-                    if (userMovePacket.direction.x == 1){
+                    userData.currentPos.x += userMovePacket.direction.x;
+                    userData.currentPos.y += userMovePacket.direction.y;
+                    if (userMovePacket.direction.x >= 1){
                         userData.seeDirection = 1;
                     }
-                    else if (userMovePacket.direction.x == -1){
+                    else if (userMovePacket.direction.x <= -1){
                         userData.seeDirection = 3;
                     }
-                    if (userMovePacket.direction.y == 1){
+                    if (userMovePacket.direction.y >= 1){
                         userData.seeDirection = 2;
                     }
-                    else if (userMovePacket.direction.y == -1){
+                    else if (userMovePacket.direction.y <= -1){
                         userData.seeDirection = 0;
                     }
-                    GameServerManager.setIsLobbyUpdated(true);//게임 관리자에게 자신이 업데이트 되었음을 알림
+                    GameServerManager.requestLobbyUpdate();//게임 관리자에게 자신이 업데이트 되었음을 알림
                 }
             }
             catch (Exception exception){

@@ -13,15 +13,20 @@ public class GameServerManager extends Thread{
     public static final GameServerManager current = new GameServerManager();
     private static int serverFrame = 17;
     private long preTime;//루프 간격을 조절하기 위한 시간 체크값
-    private static boolean isLobbyUpdated = false;
+    private static int remainLobbyUpdate = 2;
+
+
+
     @Override
     public void run() {
         while (true){
             preTime=System.currentTimeMillis();
+            sendUserPosPacket();
+            if (remainLobbyUpdate > 0){
 
-                sendUserPosPacket();
+                remainLobbyUpdate--;
+            }
 
-            isLobbyUpdated = false;
             if(System.currentTimeMillis()-preTime<serverFrame) {
                 try {
                     Thread.sleep(serverFrame-System.currentTimeMillis()+preTime);
@@ -46,7 +51,7 @@ public class GameServerManager extends Thread{
         );
         AcceptServer.sendObjectToAll(userMoveListPacket);
     }
-    public static void setIsLobbyUpdated(boolean updated){
-        isLobbyUpdated = updated;
+    public static void requestLobbyUpdate() {
+        remainLobbyUpdate = 2;
     }
 }
