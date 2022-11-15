@@ -14,7 +14,7 @@ public class ChatManager {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd HH:mm");
         String createdMsg = "["+formatter.format(date)+"]"+"["+userChatPacket.username+"]"+userChatPacket.chat;
-        ServerLogPanel.appendText("["+userChatPacket.target+"]"+createdMsg);
+        ServerLogPanel.appendText("["+userChatPacket.target+"]"+(!userChatPacket.target.equals("-ALL-")?"[귓속말]":"")+createdMsg);
         userChatPacket.chat = createdMsg;
         if (userChatPacket.target.equals("-ALL-")){
             SendToAll(userChatPacket);
