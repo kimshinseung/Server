@@ -55,7 +55,12 @@ public class AcceptServer extends Thread {
     public static void sendObjectToAll(Object ob){
         for (UserService userService : userVec){
             if (userService.userData.userName == null) continue;
-            userService.sendObject(ob);
+            try{
+                userService.sendObject(ob);
+            }
+            catch (Exception e){
+                //ignored
+            }
         }
     }
     public static List<String> getUsernameList(){

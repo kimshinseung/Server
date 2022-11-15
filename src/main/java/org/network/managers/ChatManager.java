@@ -13,8 +13,8 @@ public class ChatManager {
     public static void sendMessage(UserChatPacket userChatPacket){
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd HH:mm");
-        String createdMsg = "["+formatter.format(date)+"]"+"["+userChatPacket.username+"]"+userChatPacket.chat;
-        ServerLogPanel.appendText("["+userChatPacket.target+"]"+(!userChatPacket.target.equals("-ALL-")?"[귓속말]":"")+createdMsg);
+        String createdMsg = "["+formatter.format(date)+"]"+"["+userChatPacket.username+"]"+(!userChatPacket.target.equals("-ALL-")?"[귓속말]":"")+userChatPacket.chat;
+        ServerLogPanel.appendText("["+userChatPacket.target+"]"+createdMsg);
         userChatPacket.chat = createdMsg;
         if (userChatPacket.target.equals("-ALL-")){
             SendToAll(userChatPacket);
