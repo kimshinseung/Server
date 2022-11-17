@@ -100,6 +100,7 @@ public class UserService extends Thread{
                             sendObject(responsePacket);
                             updateUserList();
                             ChatManager.sendServerLogToAll( userData.userName + "님이 게임에 들어오셨습니다.");
+                            GameServerManager.requestLobbyUpdate();
                         }
                         else {
                             //로그인 실패 패킷 송신
