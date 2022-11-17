@@ -17,29 +17,20 @@ public class ChatManager {
         ServerLogPanel.appendText("["+userChatPacket.target+"]"+createdMsg);
         userChatPacket.chat = createdMsg;
         if (userChatPacket.target.equals("-ALL-")){
-            SendToAll(userChatPacket);
+            AcceptServer.sendObjectToAll(userChatPacket);
             return;
         }
         else {
-            SendToTarget(userChatPacket);
+            AcceptServer.sendObjectByUsername(userChatPacket.target, userChatPacket);
         }
     }
-
-    private static void SendToTarget(UserChatPacket userChatPacket) {
-        Vector<UserService> userVec = AcceptServer.getUserVec();
-        for (UserService userService : userVec){
-            if (userService.userData.userName.equals(userChatPacket.target)){
-                userService.SendMsg(userChatPacket);
-                break;
-            }
-
-        }
-    }
-
-    private static void SendToAll(UserChatPacket userChatPacket) {
-        Vector<UserService> userVec = AcceptServer.getUserVec();
-        for (UserService userService : userVec){
-            userService.SendMsg(userChatPacket);
-        }
+    public static void sendServerLogToAll(String msg){
+        UserChatPacket userChatPacket = new UserChatPacket(
+                -1,
+                "Server",
+                msg,
+                "-ALL-"
+        );
+        AcceptServer.sendObjectToAll(userChatPacket);
     }
 }

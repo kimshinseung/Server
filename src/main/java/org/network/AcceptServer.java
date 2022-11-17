@@ -45,10 +45,15 @@ public class AcceptServer extends Thread {
         }
     }
     //대상한테 오브젝트를 전송합니다.
-    public static void sendPacketByUsername(String username ,Object ob){
+    public static void sendObjectByUsername(String username ,Object ob){
         for (UserService userService : userVec){
-            if (userService.userData.userName.equals(username)){
+            if (userService.userData.userName == null) continue;
+            if (!userService.userData.userName.equals(username)) continue;
+            try{
                 userService.sendObject(ob);
+            }
+            catch (Exception e){
+                //ignored
             }
         }
     }
@@ -69,6 +74,12 @@ public class AcceptServer extends Thread {
             result.add(userService.userData.userName);
         }
         return result;
+    }
+    public static UserService findUserByUsername(String username){
+        for (UserService userService : userVec){
+            return userService;
+        }
+        return null;
     }
     public static Vector<UserService> getUserVec() {
         return userVec;

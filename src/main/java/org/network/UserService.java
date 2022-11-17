@@ -1,5 +1,6 @@
 package org.network;
 
+import org.network.managers.BattleManager;
 import org.network.managers.ChatManager;
 import org.network.managers.GameServerManager;
 import org.network.managers.LoginManager;
@@ -58,6 +59,9 @@ public class UserService extends Thread{
             //ignored
         }
         ServerLogPanel.appendText("Player " + (userData.userName != null ? userData.userName : "unknown(Login session)") + " disconnected.");
+        if (userData.userName != null){
+            ChatManager.sendServerLogToAll( userData.userName + "님이 게임에서 나가셨습니다.");
+        }
         updateUserList();
     }
     public void run() {
@@ -95,6 +99,7 @@ public class UserService extends Thread{
                             userData.userName = loginPacket.username;
                             sendObject(responsePacket);
                             updateUserList();
+                            ChatManager.sendServerLogToAll( userData.userName + "님이 게임에 들어오셨습니다.");
                         }
                         else {
                             //로그인 실패 패킷 송신
@@ -138,6 +143,11 @@ public class UserService extends Thread{
                         userData.seeDirection = 0;
                     }
                     GameServerManager.requestLobbyUpdate();//게임 관리자에게 자신이 업데이트 되었음을 알림
+                }
+                //전투 패킷 수신 파트
+                if (obcm instanceof UserBattlePacket userBattlePacket){
+                    ServerLogPanel.appendText("Receive battle packet from "+ userBattlePacket.username + " to target " + userBattlePacket.target + " by " + userBattlePacket.commandType);
+                    BattleManager.handleBattlePacket(userBattlePacket);
                 }
             }
             catch (Exception exception){
