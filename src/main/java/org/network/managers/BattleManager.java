@@ -18,6 +18,7 @@ public class BattleManager {
         ServerLogPanel.appendText("Create room by id " + "" +"[" +userBattlePacket.target+","+userBattlePacket.username+"]");
     }
     private static void sendBattleRequest(UserBattlePacket userBattlePacket) {
+        ServerLogPanel.appendText("Send battle request");
         AcceptServer.sendObjectByUsername(userBattlePacket.target,userBattlePacket);
     }
 }

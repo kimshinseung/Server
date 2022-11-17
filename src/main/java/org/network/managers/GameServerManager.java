@@ -21,9 +21,8 @@ public class GameServerManager extends Thread{
     public void run() {
         while (true){
             preTime=System.currentTimeMillis();
-            sendUserPosPacket();
             if (remainLobbyUpdate > 0){
-
+                sendUserPosPacket();
                 remainLobbyUpdate--;
             }
 

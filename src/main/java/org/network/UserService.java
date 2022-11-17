@@ -63,6 +63,7 @@ public class UserService extends Thread{
             ChatManager.sendServerLogToAll( userData.userName + "님이 게임에서 나가셨습니다.");
         }
         updateUserList();
+        GameServerManager.requestLobbyUpdate();
     }
     public void run() {
         while (true) {
