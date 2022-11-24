@@ -99,7 +99,12 @@ public class UserService extends Thread{
                             responsePacket.id = result.id;
                             userData = result;
                             responsePacket.password = result.state;
-                            if(result.state.equals("FirstIn")) ServerLogPanel.appendText(userData.userName + "님은 처음 들어오셨습니다. 포켓몬 선택창을 활성화 합니다.");
+                            if(result.state.equals("FirstIn")) {
+                                ServerLogPanel.appendText(userData.userName + "님은 처음 들어오셨습니다. 포켓몬 선택창을 활성화 합니다.");}
+                            else{
+                                ChoosePocketPacket choosePocketPacket = new ChoosePocketPacket(userData.id, userData.userName, userData.pocketMonList);
+                                sendObject(choosePocketPacket);
+                            }
                             result.state = "Default";
                             sendObject(responsePacket);
                             updateUserList();
