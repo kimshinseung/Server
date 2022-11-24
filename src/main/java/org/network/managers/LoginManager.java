@@ -11,16 +11,16 @@ import java.util.*;
 
 public class LoginManager {
     private static Map<Integer, UserData> userList = new HashMap<>();
-    public static int checkUser(LoginPacket loginPacket) {
+    public static UserData checkUser(LoginPacket loginPacket) {
         Collection<UserData> usersData = userList.values();
         for (UserData userData : usersData){
             if (userData.userName.equals(loginPacket.username) && userData.password.equals(loginPacket.password)){
                 ServerLogPanel.appendText(loginPacket.username + " Login success");
-                return userData.id;
+                return userData;
             }
         }
         ServerLogPanel.appendText(loginPacket.username + " Login failed");
-        return -1;
+        return null;
     }
     public static boolean createUser(LoginPacket loginPacket) {
         for (UserData userData : userList.values()){
@@ -37,6 +37,7 @@ public class LoginManager {
             UserData userData = new UserData();
             userData.password = loginPacket.password;
             userData.id = i;
+            userData.state = "FirstIn";
             userData.userName = loginPacket.username;
             userList.put(i,userData);
             ServerLogPanel.appendText("User : " + loginPacket.username + " has created. User identification Id : " + i);

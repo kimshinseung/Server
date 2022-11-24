@@ -93,11 +93,14 @@ public class UserService extends Thread{
                     ServerLogPanel.appendText("===Login Task===");
                     LoginPacket responsePacket = new LoginPacket(-1, LoginPacketType.LOGIN_ACCEPT, loginPacket.username, "");
                     if (loginPacket.loginPacketType == LoginPacketType.LOGIN){
-                        int result = LoginManager.checkUser(loginPacket);
-                        if (result >= 0){
+                        UserData result = LoginManager.checkUser(loginPacket);
+                        if (result != null){
                             //로그인 성공 패킷 송신
-                            responsePacket.id = result;
-                            userData.userName = loginPacket.username;
+                            responsePacket.id = result.id;
+                            userData = result;
+                            responsePacket.password = result.state;
+                            if(result.state.equals("FirstIn")) ServerLogPanel.appendText(userData.userName + "님은 처음 들어오셨습니다. 포켓몬 선택창을 활성화 합니다.");
+                            result.state = "Default";
                             sendObject(responsePacket);
                             updateUserList();
                             ChatManager.sendServerLogToAll( userData.userName + "님이 게임에 들어오셨습니다.");
