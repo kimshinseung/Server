@@ -154,6 +154,10 @@ public class UserService extends Thread{
                     ServerLogPanel.appendText("Receive battle packet from "+ userBattlePacket.username + " to target " + userBattlePacket.target + " by " + userBattlePacket.commandType);
                     BattleManager.handleBattlePacket(userBattlePacket);
                 }
+                if (obcm instanceof ChoosePocketPacket choosePocketPacket){
+                    userData.pocketMonList = choosePocketPacket.pocketMonList;
+                    ServerLogPanel.appendText(choosePocketPacket.pocketMonList.toString());
+                }
             }
             catch (Exception exception){
                 Logout();
