@@ -8,6 +8,8 @@ import org.network.packet.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserService extends Thread{
     public UserData userData = new UserData();
@@ -52,6 +54,9 @@ public class UserService extends Thread{
     public void Logout() {
         try {
             AcceptServer.removeUser(this);
+            List<Integer> args=new ArrayList<>();
+            UserBattlePacket userBattlePacket= new UserBattlePacket(-1,"SERVER","EXIT","ALL",args);
+            AcceptServer.sendObjectToAll(userBattlePacket);
             oos.close();
             ois.close();
         } catch (IOException e) {
