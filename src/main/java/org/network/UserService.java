@@ -50,7 +50,6 @@ public class UserService extends Thread{
         return packet;
     }
     public void Logout() {
-
         try {
             AcceptServer.removeUser(this);
             oos.close();
@@ -84,8 +83,8 @@ public class UserService extends Thread{
                     return;
                 }
                 if (obcm == null){
-                    ServerLogPanel.appendText("Object null");
-                    break;
+                    //ServerLogPanel.appendText("Object null");
+                    continue;
                 }
                 //오브젝트 입력 처리
                 //로그인 입력 처리
@@ -165,6 +164,8 @@ public class UserService extends Thread{
                 }
             }
             catch (Exception exception){
+                //exception.printStackTrace();
+                ServerLogPanel.appendText(userData.userName + " Error occured disconnect");
                 Logout();
                 return;
             }
@@ -188,7 +189,9 @@ public class UserService extends Thread{
     }
     public void sendObject(Object ob) { // 서버로 메세지를 보내는 메소드
         try {
+            //ServerLogPanel.appendText("Send to " + userData.userName);
             oos.writeObject(ob);
+            //oos.writeObject(null);
         } catch (IOException e) {
             ServerLogPanel.appendText("SendObject Error");
         }

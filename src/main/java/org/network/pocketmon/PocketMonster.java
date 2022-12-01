@@ -1,6 +1,6 @@
 package org.network.pocketmon;
 
-public abstract class PocketMonster implements Fight {
+public class PocketMonster implements Fight {
     private String name;//포켓몬 이름 ex)피카츄, 파이리
     private String condition;//현재상태
 
@@ -16,6 +16,18 @@ public abstract class PocketMonster implements Fight {
 
         skill_list = new Skill[4];
     }
+
+    public PocketMonster(PocketMonster pocketMonster) {
+        this.name = pocketMonster.name;
+        this.condition = pocketMonster.condition;
+        this.frontPath = pocketMonster.frontPath;
+        this.backPath = pocketMonster.backPath;
+        this.current_HP = pocketMonster.current_HP;
+        this.max_HP = pocketMonster.max_HP;
+        this.atk = pocketMonster.atk;
+        this.skill_list = pocketMonster.skill_list;
+    }
+
     public String getFrontPath() {
         return frontPath;
     }
@@ -177,7 +189,9 @@ public abstract class PocketMonster implements Fight {
 
         return str_base;
     }
-
+    public PocketMonster getHardCopy(){
+        return new PocketMonster(this);
+    }
     public void is_dead()
     {
         if(this.getCurrent_HP()==0)

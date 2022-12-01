@@ -48,4 +48,12 @@ public class LoginManager {
             return false;
         }
     }
+    public static UserData getUserDataByUsername(String username){
+        for (UserData userData : userList.values()){
+            if (userData.userName.equals(username)){
+                return userData;
+            }
+        }
+        return null;
+    }
 }

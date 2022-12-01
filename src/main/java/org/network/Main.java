@@ -1,5 +1,6 @@
 package org.network;
 
+import org.network.data.PocketMonData;
 import org.network.managers.GameServerManager;
 
 import java.awt.event.ActionEvent;
@@ -17,7 +18,7 @@ public class Main {
 
     public static void main(String[] args)
     {
-
+        PocketMonData.InitPocketmonData();
         AcceptServer acceptServer = new AcceptServer();
         GameServerManager.current.start();
         ServerLogPanel serverLogPanel = new ServerLogPanel();
