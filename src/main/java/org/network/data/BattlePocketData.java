@@ -20,7 +20,7 @@ public class BattlePocketData {
     public boolean isDead;
     public void giveDamage(int damage){
         currentHealth-=damage;
-        if (currentHealth<0){
+        if (currentHealth<=0){
             currentHealth = 0;
             isDead = true;
         }

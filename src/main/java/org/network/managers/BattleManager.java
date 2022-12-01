@@ -113,9 +113,29 @@ public class BattleManager {
                     "-ALL-",
                     args
             );
+            gameover(username);
             AcceptServer.sendObjectByUsername(username,battleResultPacket);
         }
-
+    }
+    private static void gameover(String username){
+        int roomId = roomMap.get(username);
+        BattleData battleData = roomBattleData.get(roomId);
+        if (battleData.checkPlayerDefeat(username)){
+            List<Integer> args = new ArrayList<>();
+            UserBattlePacket userBattlePacket1 = new UserBattlePacket(-1, "SERVER", "EXIT", "ALL", args);
+            AcceptServer.sendObjectToAll(userBattlePacket1);
+        }
+//        int count=0;
+//        for(int i=0;i<3;i++){
+//            if(battleData.playerPocketMonList.get(username).get(i).isDead==true){
+//                count+=1;
+//            }
+//            if(count==3) {
+//                List<Integer> args = new ArrayList<>();
+//                UserBattlePacket userBattlePacket1 = new UserBattlePacket(-1, "SERVER", "EXIT", "ALL", args);
+//                AcceptServer.sendObjectToAll(userBattlePacket1);
+//            }
+//        }
     }
     private static void createBattleService(UserBattlePacket userBattlePacket) {
         ServerLogPanel.appendText("Create room by id " + " : [" + roomId +"]" +"[" +userBattlePacket.target+","+userBattlePacket.username+"]");

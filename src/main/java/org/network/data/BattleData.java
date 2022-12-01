@@ -2,6 +2,7 @@ package org.network.data;
 
 import org.network.ServerLogPanel;
 import org.network.UserData;
+import org.network.managers.BattleManager;
 import org.network.managers.LoginManager;
 import org.network.packet.UserBattlePacket;
 import org.network.pocketmon.PocketMonster;
@@ -99,12 +100,19 @@ public class BattleData {
             }
         }
     }
-    public boolean addBattleProgress(UserBattlePacket userBattlePacket){
-        playerCommand.put(userBattlePacket.username,userBattlePacket);
-        for (UserBattlePacket ubp : playerCommand.values()){
-            if (ubp == null){
+    public boolean addBattleProgress(UserBattlePacket userBattlePacket) {
+        playerCommand.put(userBattlePacket.username, userBattlePacket);
+        for (UserBattlePacket ubp : playerCommand.values()) {
+            if (ubp == null) {
                 return false;
             }
+        }
+        return true;
+    }
+    public boolean checkPlayerDefeat(String username)
+    {
+        for (BattlePocketData pocketData : playerPocketMonList.get(username)){
+            if (!pocketData.isDead) return false;
         }
         return true;
     }
