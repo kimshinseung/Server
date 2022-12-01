@@ -4,6 +4,7 @@ import org.network.AcceptServer;
 import org.network.ServerLogPanel;
 import org.network.UserService;
 import org.network.data.BattleData;
+import org.network.data.BattlePocketData;
 import org.network.data.PocketMonData;
 import org.network.packet.UserBattlePacket;
 import org.network.packet.UserChatPacket;
@@ -86,10 +87,23 @@ public class BattleManager {
         int roomId = roomMap.get(userBattlePacket.username);
         BattleData battleData = roomBattleData.get(roomId);
         battleData.giveDamageToCurrentPocketMon(userBattlePacket);
-
         for (String username : battleData.playerPocketMonList.keySet()){
+            List<Integer> args = new ArrayList<>();
+            BattlePocketData playerData = battleData.getCurrentPocketDataByUsername(username);
+            BattlePocketData opponentData = battleData.getCurrentPocketDataByUsername(battleData.getOpponent(username));
+            args.add(playerData.currentHealth);
+            args.add(playerData.maxHealth);
+            args.add(opponentData.currentHealth);
+            args.add(opponentData.maxHealth);
             //AcceptServer.sendObjectByUsername(username,battleLog);
-            AcceptServer.sendObjectByUsername(username,userBattlePacket);
+            UserBattlePacket battleResultPacket = new UserBattlePacket(
+                    -1,
+                    "Server",
+                    "HEALTH",
+                    "-ALL-",
+                    args
+                    );
+            AcceptServer.sendObjectByUsername(username,battleResultPacket);
         }
     }
 
@@ -103,7 +117,7 @@ public class BattleManager {
         roomUserList.add(userBattlePacket.target);
         BattleData battleData = new BattleData(roomUserList);
         roomBattleData.put(roomId,battleData);
-        ServerLogPanel.appendText("Here");
+        //ServerLogPanel.appendText("Here");
 
         AcceptServer.sendObjectByUsername(userBattlePacket.username,userBattlePacket);
         AcceptServer.sendObjectByUsername(userBattlePacket.target,userBattlePacket);

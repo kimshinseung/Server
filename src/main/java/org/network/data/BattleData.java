@@ -32,6 +32,7 @@ public class BattleData {
                 battlePocketData.maxHealth = pocket.getMax_HP();
                 pocketMonsterList.add(battlePocketData);
             }
+            currentPocketMon.put(username,0);
             playerPocketMonList.put(username,pocketMonsterList);
         }
     }
@@ -47,31 +48,43 @@ public class BattleData {
     public void giveDamageToCurrentPocketMon(UserBattlePacket userBattlePacket) {
         if (userBattlePacket.target.equals("OPPONENT")){
             String currentTarget = "";
-            for (String username : currentPocketMon.keySet()){
-                if (!username.equals(userBattlePacket.username)) currentTarget = username; break;
+            for (String username : playerState.keySet()){
+                if (!username.equals(userBattlePacket.username)){
+                    currentTarget = username;
+                    break;
+                }
             }
             if (currentTarget.isBlank()){
-                ServerLogPanel.appendText("Attack error.");
+                ServerLogPanel.appendText("Attack error. current target : " + currentTarget);
                 return;
             }
+            ServerLogPanel.appendText(currentPocketMon.keySet().toString() + " / " + currentTarget);
             int opponentPocketId = currentPocketMon.get(currentTarget);
             int myPocketId = currentPocketMon.get(userBattlePacket.username);
-            BattlePocketData battlePocketData = playerPocketMonList.get(userBattlePacket.username).get(myPocketId);
+            BattlePocketData battlePocketData = playerPocketMonList.get(currentTarget).get(opponentPocketId);
             int attackType = userBattlePacket.args.get(0);
             if (attackType == -1) {
                 battlePocketData.currentHealth -=
                         PocketMonData.monsterInfo.get(
-                                playerPocketMonList.get(currentTarget).get(opponentPocketId).pocketId).getAtk();
+                                playerPocketMonList.get(userBattlePacket.username).get(myPocketId).pocketId).getAtk();
             } else {
                 battlePocketData.currentHealth -=
                         PocketMonData.monsterInfo.get(
-                                        playerPocketMonList.get(currentTarget).get(opponentPocketId).pocketId)
+                                        playerPocketMonList.get(userBattlePacket.username).get(myPocketId).pocketId)
                                 .getSkill_list()[attackType].getPower();
             }
         }
     }
     public BattlePocketData getCurrentPocketDataByUsername(String username){
         int index = currentPocketMon.get(username);
+        ServerLogPanel.appendText(username + "/"+index);
         return playerPocketMonList.get(username).get(index);
+    }
+    public String getOpponent(String username){
+        for (String us : playerState.keySet()){
+            if (!us.equals(username)) return us;
+        }
+        ServerLogPanel.appendText("Error attack target not found");
+        return null;
     }
 }
