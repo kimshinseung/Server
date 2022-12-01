@@ -24,13 +24,29 @@ public class BattleManager {
             default -> processBattlePacket(userBattlePacket);
         }
     }
+
+    private static boolean isUserReadyToNextBehavior(UserBattlePacket userBattlePacket)
+    {
+        int roomId = roomMap.get(userBattlePacket.username);
+        BattleData battleData = roomBattleData.get(roomId);
+        for (String state : battleData.playerState.values()){
+            if (!state.equals("COMMAND")){
+                return false;
+            }
+        }
+        return true;
+    }
+
     //요청 수락 외의 이벤트를 처리하는 코드
     private static void processBattlePacket(UserBattlePacket userBattlePacket) {
         switch (userBattlePacket.commandType){
             case "ATTACK" -> attackToTarget(userBattlePacket);
-            case "HEAL" -> healToTarget(userBattlePacket);
+            case "ITEM" -> healToTarget(userBattlePacket);
             case "CHANGE" -> applyChangeBattlePacket(userBattlePacket);
             case "RESUME" -> applyPlayerState(userBattlePacket);
+        }
+        if (isUserReadyToNextBehavior(userBattlePacket)){
+            ServerLogPanel.appendText("Both users are ready.");
         }
     }
 
@@ -58,14 +74,23 @@ public class BattleManager {
             AcceptServer.sendObjectByUsername(username,battleLog);
             AcceptServer.sendObjectByUsername(username,userBattlePacket);
         }
+        battleData.playerState.replace(userBattlePacket.username,"COMMAND");
     }
 
     private static void healToTarget(UserBattlePacket userBattlePacket) {
-
+        ServerLogPanel.appendText(userBattlePacket.username + " used item that " + userBattlePacket.args.get(0));
     }
 
     private static void attackToTarget(UserBattlePacket userBattlePacket) {
+        ServerLogPanel.appendText(userBattlePacket.username + " attack by index : " + userBattlePacket.args.get(0));
+        int roomId = roomMap.get(userBattlePacket.username);
+        BattleData battleData = roomBattleData.get(roomId);
+        battleData.giveDamageToCurrentPocketMon(userBattlePacket);
 
+        for (String username : battleData.playerPocketMonList.keySet()){
+            //AcceptServer.sendObjectByUsername(username,battleLog);
+            AcceptServer.sendObjectByUsername(username,userBattlePacket);
+        }
     }
 
     private static void createBattleService(UserBattlePacket userBattlePacket) {

@@ -164,7 +164,7 @@ public class UserService extends Thread{
                 }
             }
             catch (Exception exception){
-                //exception.printStackTrace();
+                exception.printStackTrace();
                 ServerLogPanel.appendText(userData.userName + " Error occured disconnect");
                 Logout();
                 return;

@@ -3,6 +3,7 @@ package org.network.data;
 import org.network.ServerLogPanel;
 import org.network.UserData;
 import org.network.managers.LoginManager;
+import org.network.packet.UserBattlePacket;
 import org.network.pocketmon.PocketMonster;
 
 import java.util.ArrayList;
@@ -41,5 +42,36 @@ public class BattleData {
         }
         currentPocketMon.replace(username,index);
         return playerPocketMonList.get(username).get(index).pocketId;
+    }
+
+    public void giveDamageToCurrentPocketMon(UserBattlePacket userBattlePacket) {
+        if (userBattlePacket.target.equals("OPPONENT")){
+            String currentTarget = "";
+            for (String username : currentPocketMon.keySet()){
+                if (!username.equals(userBattlePacket.username)) currentTarget = username; break;
+            }
+            if (currentTarget.isBlank()){
+                ServerLogPanel.appendText("Attack error.");
+                return;
+            }
+            int opponentPocketId = currentPocketMon.get(currentTarget);
+            int myPocketId = currentPocketMon.get(userBattlePacket.username);
+            BattlePocketData battlePocketData = playerPocketMonList.get(userBattlePacket.username).get(myPocketId);
+            int attackType = userBattlePacket.args.get(0);
+            if (attackType == -1) {
+                battlePocketData.currentHealth -=
+                        PocketMonData.monsterInfo.get(
+                                playerPocketMonList.get(currentTarget).get(opponentPocketId).pocketId).getAtk();
+            } else {
+                battlePocketData.currentHealth -=
+                        PocketMonData.monsterInfo.get(
+                                        playerPocketMonList.get(currentTarget).get(opponentPocketId).pocketId)
+                                .getSkill_list()[attackType].getPower();
+            }
+        }
+    }
+    public BattlePocketData getCurrentPocketDataByUsername(String username){
+        int index = currentPocketMon.get(username);
+        return playerPocketMonList.get(username).get(index);
     }
 }
