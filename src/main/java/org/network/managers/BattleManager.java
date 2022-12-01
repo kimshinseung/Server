@@ -40,21 +40,23 @@ public class BattleManager {
 
     //요청 수락 외의 이벤트를 처리하는 코드
     private static void processBattlePacket(UserBattlePacket userBattlePacket) {
-        switch (userBattlePacket.commandType){
-            case "ATTACK" -> attackToTarget(userBattlePacket);
-            case "ITEM" -> userItemToTarget(userBattlePacket);
-            case "CHANGE" -> applyChangeBattlePacket(userBattlePacket);
-            case "RESUME" -> applyPlayerState(userBattlePacket);
+        int roomId = roomMap.get(userBattlePacket.username);
+        BattleData battleData = roomBattleData.get(roomId);
+        if (!battleData.addBattleProgress(userBattlePacket)){
+            return;
         }
-        if (isUserReadyToNextBehavior(userBattlePacket)){
-            ServerLogPanel.appendText("Both users are ready.");
+        for (UserBattlePacket ubp : battleData.playerCommand.values()){
+            switch (ubp.commandType){
+                case "ATTACK" -> attackToTarget(ubp);
+                case "ITEM" -> userItemToTarget(ubp);
+                case "CHANGE" -> applyChangeBattlePacket(ubp);
+            }
+            battleData.playerCommand.replace(ubp.username,null);
         }
+//        if (isUserReadyToNextBehavior(userBattlePacket)){
+//            ServerLogPanel.appendText("Both users are ready.");
+//        }
     }
-
-    private static void applyPlayerState(UserBattlePacket userBattlePacket) {
-
-    }
-
     private static void applyChangeBattlePacket(UserBattlePacket userBattlePacket) {
         int roomId = roomMap.get(userBattlePacket.username);
         BattleData battleData = roomBattleData.get(roomId);
@@ -113,6 +115,7 @@ public class BattleManager {
             );
             AcceptServer.sendObjectByUsername(username,battleResultPacket);
         }
+
     }
     private static void createBattleService(UserBattlePacket userBattlePacket) {
         ServerLogPanel.appendText("Create room by id " + " : [" + roomId +"]" +"[" +userBattlePacket.target+","+userBattlePacket.username+"]");

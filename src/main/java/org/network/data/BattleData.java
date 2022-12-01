@@ -16,6 +16,7 @@ public class BattleData {
     public Map<String,String> playerState = new HashMap<>();
     public Map<String,Integer> currentPocketMon = new HashMap<>();
     public Map<String, List<BattlePocketData>> playerPocketMonList = new HashMap<>();
+    public Map<String, UserBattlePacket> playerCommand = new HashMap<>();
     public BattleData(List<String> player){
         for (String username : player){
             playerState.put(username,"SELECT");
@@ -33,6 +34,7 @@ public class BattleData {
                 pocketMonsterList.add(battlePocketData);
             }
             currentPocketMon.put(username,0);
+            playerCommand.put(username,null);
             playerPocketMonList.put(username,pocketMonsterList);
         }
     }
@@ -96,5 +98,14 @@ public class BattleData {
                 case 1 -> battlePocketData.giveHeal(50);
             }
         }
+    }
+    public boolean addBattleProgress(UserBattlePacket userBattlePacket){
+        playerCommand.put(userBattlePacket.username,userBattlePacket);
+        for (UserBattlePacket ubp : playerCommand.values()){
+            if (ubp == null){
+                return false;
+            }
+        }
+        return true;
     }
 }
