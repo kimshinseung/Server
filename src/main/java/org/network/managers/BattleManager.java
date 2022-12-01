@@ -42,7 +42,7 @@ public class BattleManager {
     private static void processBattlePacket(UserBattlePacket userBattlePacket) {
         switch (userBattlePacket.commandType){
             case "ATTACK" -> attackToTarget(userBattlePacket);
-            case "ITEM" -> healToTarget(userBattlePacket);
+            case "ITEM" -> userItemToTarget(userBattlePacket);
             case "CHANGE" -> applyChangeBattlePacket(userBattlePacket);
             case "RESUME" -> applyPlayerState(userBattlePacket);
         }
@@ -76,10 +76,15 @@ public class BattleManager {
             AcceptServer.sendObjectByUsername(username,userBattlePacket);
         }
         battleData.playerState.replace(userBattlePacket.username,"COMMAND");
+        updatePocketMonHealth(battleData);
     }
 
-    private static void healToTarget(UserBattlePacket userBattlePacket) {
+    private static void userItemToTarget(UserBattlePacket userBattlePacket) {
         ServerLogPanel.appendText(userBattlePacket.username + " used item that " + userBattlePacket.args.get(0));
+        int roomId = roomMap.get(userBattlePacket.username);
+        BattleData battleData = roomBattleData.get(roomId);
+        battleData.giveHealToCurrentPocketMon(userBattlePacket);
+        updatePocketMonHealth(battleData);
     }
 
     private static void attackToTarget(UserBattlePacket userBattlePacket) {
@@ -87,14 +92,17 @@ public class BattleManager {
         int roomId = roomMap.get(userBattlePacket.username);
         BattleData battleData = roomBattleData.get(roomId);
         battleData.giveDamageToCurrentPocketMon(userBattlePacket);
+        updatePocketMonHealth(battleData);
+    }
+    private static void updatePocketMonHealth(BattleData battleData){
         for (String username : battleData.playerPocketMonList.keySet()){
             List<Integer> args = new ArrayList<>();
             BattlePocketData playerData = battleData.getCurrentPocketDataByUsername(username);
             BattlePocketData opponentData = battleData.getCurrentPocketDataByUsername(battleData.getOpponent(username));
-            args.add(playerData.currentHealth);
-            args.add(playerData.maxHealth);
-            args.add(opponentData.currentHealth);
-            args.add(opponentData.maxHealth);
+            args.add(playerData.getCurrentHealth());
+            args.add(playerData.getMaxHealth());
+            args.add(opponentData.getCurrentHealth());
+            args.add(opponentData.getMaxHealth());
             //AcceptServer.sendObjectByUsername(username,battleLog);
             UserBattlePacket battleResultPacket = new UserBattlePacket(
                     -1,
@@ -102,11 +110,10 @@ public class BattleManager {
                     "HEALTH",
                     "-ALL-",
                     args
-                    );
+            );
             AcceptServer.sendObjectByUsername(username,battleResultPacket);
         }
     }
-
     private static void createBattleService(UserBattlePacket userBattlePacket) {
         ServerLogPanel.appendText("Create room by id " + " : [" + roomId +"]" +"[" +userBattlePacket.target+","+userBattlePacket.username+"]");
         roomMap.put(userBattlePacket.username,roomId);

@@ -28,8 +28,8 @@ public class BattleData {
                 BattlePocketData battlePocketData = new BattlePocketData();
                 battlePocketData.pocketId = pocketId;
                 battlePocketData.isDead = false;
-                battlePocketData.currentHealth = pocket.getCurrent_HP();
-                battlePocketData.maxHealth = pocket.getMax_HP();
+                battlePocketData.setCurrentHealth(pocket.getCurrent_HP());
+                battlePocketData.setMaxHealth(pocket.getMax_HP());
                 pocketMonsterList.add(battlePocketData);
             }
             currentPocketMon.put(username,0);
@@ -64,14 +64,12 @@ public class BattleData {
             BattlePocketData battlePocketData = playerPocketMonList.get(currentTarget).get(opponentPocketId);
             int attackType = userBattlePacket.args.get(0);
             if (attackType == -1) {
-                battlePocketData.currentHealth -=
-                        PocketMonData.monsterInfo.get(
-                                playerPocketMonList.get(userBattlePacket.username).get(myPocketId).pocketId).getAtk();
+                battlePocketData.giveDamage(PocketMonData.monsterInfo.get(
+                                playerPocketMonList.get(userBattlePacket.username).get(myPocketId).pocketId).getAtk());
             } else {
-                battlePocketData.currentHealth -=
-                        PocketMonData.monsterInfo.get(
+                battlePocketData.giveDamage(PocketMonData.monsterInfo.get(
                                         playerPocketMonList.get(userBattlePacket.username).get(myPocketId).pocketId)
-                                .getSkill_list()[attackType].getPower();
+                                .getSkill_list()[attackType].getPower());
             }
         }
     }
@@ -86,5 +84,17 @@ public class BattleData {
         }
         ServerLogPanel.appendText("Error attack target not found");
         return null;
+    }
+
+    public void giveHealToCurrentPocketMon(UserBattlePacket userBattlePacket) {
+        if (userBattlePacket.target.equals("ME")){
+            int myPocketId = currentPocketMon.get(userBattlePacket.username);
+            BattlePocketData battlePocketData = playerPocketMonList.get(userBattlePacket.username).get(myPocketId);
+            int healType = userBattlePacket.args.get(0);
+            switch (healType) {
+                case 0 -> battlePocketData.giveHeal(30);
+                case 1 -> battlePocketData.giveHeal(50);
+            }
+        }
     }
 }
