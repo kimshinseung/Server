@@ -2,6 +2,7 @@ package org.network.data;
 
 import org.network.ServerLogPanel;
 import org.network.UserData;
+import org.network.managers.BattleManager;
 import org.network.managers.LoginManager;
 import org.network.packet.UserBattlePacket;
 import org.network.pocketmon.PocketMonster;
@@ -96,5 +97,12 @@ public class BattleData {
                 case 1 -> battlePocketData.giveHeal(50);
             }
         }
+    }
+    public boolean checkPlayerDefeat(String username)
+    {
+        for (BattlePocketData pocketData : playerPocketMonList.get(username)){
+            if (!pocketData.isDead) return false;
+        }
+        return true;
     }
 }
