@@ -2,7 +2,6 @@ package org.network.managers;
 
 import org.network.AcceptServer;
 import org.network.ServerLogPanel;
-import org.network.UserService;
 import org.network.data.BattleData;
 import org.network.data.BattlePocketData;
 import org.network.data.PocketMonData;
@@ -114,14 +113,28 @@ public class BattleManager {
                     "-ALL-",
                     args
             );
-            gameover(username);
+            handleChangeRequest(username);
+            hantleGameOver(username);
             AcceptServer.sendObjectByUsername(username,battleResultPacket);
         }
     }
-    private static void gameover(String username){
+
+    private static void handleChangeRequest(String username) {
+        int roomId = roomMap.get(username);
+        BattleData battleData = roomBattleData.get(roomId);
+        if (battleData.checkPlayerCurrentPocketDefeat(username)){
+            ServerLogPanel.appendText(username + "'s pocketmon has defeated. send change packet.");
+            List<Integer> args = battleData.getPlayerRemainPocketMon(username);
+            UserBattlePacket battlePacket = new UserBattlePacket(-1,"SERVER","CHANGE_REQUEST",username,args);
+            AcceptServer.sendObjectByUsername(username,battlePacket);
+        }
+    }
+
+    private static void hantleGameOver(String username){
         int roomId = roomMap.get(username);
         BattleData battleData = roomBattleData.get(roomId);
         if (battleData.checkPlayerDefeat(username)){
+            ServerLogPanel.appendText(username + " is defeated");
             List<Integer> args = new ArrayList<>();
             UserBattlePacket userBattlePacket1 = new UserBattlePacket(-1, "SERVER", "EXIT", "ALL", args);
             AcceptServer.sendObjectToAll(userBattlePacket1);

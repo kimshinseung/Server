@@ -24,7 +24,7 @@ public class BattleData {
             UserData user = LoginManager.getUserDataByUsername(username);
             //ServerLogPanel.appendText(user==null?"null":"exist");
             List<BattlePocketData> pocketMonsterList = new ArrayList<>();
-            ServerLogPanel.appendText(user.pocketMonList.toString());
+            //ServerLogPanel.appendText(user.pocketMonList.toString());
             for (int pocketId : user.pocketMonList){
                 PocketMonster pocket = PocketMonData.monsterInfo.get(pocketId);
                 BattlePocketData battlePocketData = new BattlePocketData();
@@ -61,7 +61,7 @@ public class BattleData {
                 ServerLogPanel.appendText("Attack error. current target : " + currentTarget);
                 return;
             }
-            ServerLogPanel.appendText(currentPocketMon.keySet().toString() + " / " + currentTarget);
+            //ServerLogPanel.appendText(currentPocketMon.keySet().toString() + " / " + currentTarget);
             int opponentPocketId = currentPocketMon.get(currentTarget);
             int myPocketId = currentPocketMon.get(userBattlePacket.username);
             BattlePocketData battlePocketData = playerPocketMonList.get(currentTarget).get(opponentPocketId);
@@ -78,7 +78,7 @@ public class BattleData {
     }
     public BattlePocketData getCurrentPocketDataByUsername(String username){
         int index = currentPocketMon.get(username);
-        ServerLogPanel.appendText(username + "/"+index);
+        //ServerLogPanel.appendText(username + "/"+index);
         return playerPocketMonList.get(username).get(index);
     }
     public String getOpponent(String username){
@@ -115,5 +115,18 @@ public class BattleData {
             if (!pocketData.isDead) return false;
         }
         return true;
+    }
+
+    public boolean checkPlayerCurrentPocketDefeat(String username) {
+        return playerPocketMonList.get(username).get(currentPocketMon.get(username)).isDead;
+    }
+
+    public List<Integer> getPlayerRemainPocketMon(String username) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < playerPocketMonList.get(username).size();i++){
+            if (playerPocketMonList.get(username).get(i).isDead) continue;
+            result.add(i);
+        }
+        return result;
     }
 }
