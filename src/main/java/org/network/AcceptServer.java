@@ -77,7 +77,9 @@ public class AcceptServer extends Thread {
     }
     public static UserService findUserByUsername(String username){
         for (UserService userService : userVec){
-            return userService;
+            if (userService.userData == null) continue;
+            if (userService.userData.userName == null) continue;
+            if (userService.userData.userName.equals(username)) return userService;
         }
         return null;
     }

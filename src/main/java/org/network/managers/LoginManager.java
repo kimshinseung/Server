@@ -3,6 +3,7 @@ package org.network.managers;
 import org.network.AcceptServer;
 import org.network.ServerLogPanel;
 import org.network.UserData;
+import org.network.UserService;
 import org.network.packet.LoginPacket;
 import org.network.packet.LoginPacketType;
 import org.network.packet.UserListPacket;
@@ -12,6 +13,9 @@ import java.util.*;
 public class LoginManager {
     private static Map<Integer, UserData> userList = new HashMap<>();
     public static UserData checkUser(LoginPacket loginPacket) {
+        if (AcceptServer.findUserByUsername(loginPacket.username)!=null){
+            return null;
+        }
         Collection<UserData> usersData = userList.values();
         for (UserData userData : usersData){
             if (userData.userName.equals(loginPacket.username) && userData.password.equals(loginPacket.password)){
