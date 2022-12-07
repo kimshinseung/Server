@@ -54,18 +54,19 @@ public class UserService extends Thread{
     public void Logout() {
         try {
             AcceptServer.removeUser(this);
+            GameServerManager.requestLobbyUpdate();
+            updateUserList();
+            ServerLogPanel.appendText("Player " + (userData.userName != null ? userData.userName : "unknown(Login session)") + " disconnected.");
+            if (userData.userName != null){
+                ChatManager.sendServerLogToAll( userData.userName + "님이 게임에서 나가셨습니다.");
+            }
             BattleManager.destroyRoomByUsername(userData.userName);
             oos.close();
             ois.close();
         } catch (IOException e) {
             //ignored
         }
-        ServerLogPanel.appendText("Player " + (userData.userName != null ? userData.userName : "unknown(Login session)") + " disconnected.");
-        if (userData.userName != null){
-            ChatManager.sendServerLogToAll( userData.userName + "님이 게임에서 나가셨습니다.");
-        }
-        updateUserList();
-        GameServerManager.requestLobbyUpdate();
+
     }
     public void run() {
         while (true) {
