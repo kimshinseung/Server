@@ -14,14 +14,14 @@ public class ServerLogPanel extends JFrame {
     public ServerLogPanel()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 338, 440);
+        setBounds(100, 100, 600, 440);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(12, 10, 300, 298);
+        scrollPane.setBounds(10, 10, 570, 298);
         contentPane.add(scrollPane);
 
         textArea = new JTextArea();

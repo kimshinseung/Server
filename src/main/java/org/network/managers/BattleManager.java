@@ -24,19 +24,6 @@ public class BattleManager {
             default -> processBattlePacket(userBattlePacket);
         }
     }
-
-    private static boolean isUserReadyToNextBehavior(UserBattlePacket userBattlePacket)
-    {
-        int roomId = roomMap.get(userBattlePacket.username);
-        BattleData battleData = roomBattleData.get(roomId);
-        for (String state : battleData.playerState.values()){
-            if (!state.equals("COMMAND")){
-                return false;
-            }
-        }
-        return true;
-    }
-
     //요청 수락 외의 이벤트를 처리하는 코드
     private static void processBattlePacket(UserBattlePacket userBattlePacket) {
         switch (userBattlePacket.commandType){
@@ -44,6 +31,11 @@ public class BattleManager {
             case "ITEM" -> userItemToTarget(userBattlePacket);
             case "CHANGE" -> applyChangeBattlePacket(userBattlePacket);
         }
+        if (userBattlePacket.commandType.equals("CHANGE")) return;
+        int roomId = roomMap.get(userBattlePacket.username);
+        BattleData battleData = roomBattleData.get(roomId);
+        String opponentName = battleData.getOpponent(userBattlePacket.username);
+        sendSwapAndWaitPacket(opponentName,userBattlePacket.username);
 //        int roomId = roomMap.get(userBattlePacket.username);
 //        BattleData battleData = roomBattleData.get(roomId);
 //        if (!battleData.addBattleProgress(userBattlePacket)){
@@ -57,6 +49,22 @@ public class BattleManager {
 //            ServerLogPanel.appendText("Both users are ready.");
 //        }
     }
+
+    private static void sendSwapAndWaitPacket(String turnUsername, String waitUsername) {
+        ServerLogPanel.appendText("Change turn to "+turnUsername + " turn. Next turn is "+waitUsername + " turn");
+        UserBattlePacket userBattlePacket = new UserBattlePacket(
+                -1,
+                "SERVER",
+                "TURN",
+                turnUsername,
+                new ArrayList<>()
+        );
+        AcceptServer.sendObjectByUsername(turnUsername,userBattlePacket);
+        userBattlePacket.target = waitUsername;
+        userBattlePacket.commandType = "WAIT";
+        AcceptServer.sendObjectByUsername(waitUsername,userBattlePacket);
+    }
+
     private static void applyChangeBattlePacket(UserBattlePacket userBattlePacket) {
         int roomId = roomMap.get(userBattlePacket.username);
         BattleData battleData = roomBattleData.get(roomId);
@@ -114,7 +122,7 @@ public class BattleManager {
                     args
             );
             handleChangeRequest(username);
-            hantleGameOver(username);
+            handleGameOver(username);
             AcceptServer.sendObjectByUsername(username,battleResultPacket);
         }
     }
@@ -130,7 +138,7 @@ public class BattleManager {
         }
     }
 
-    private static void hantleGameOver(String username){
+    private static void handleGameOver(String username){
         int roomId = roomMap.get(username);
         BattleData battleData = roomBattleData.get(roomId);
         if (battleData.checkPlayerDefeat(username)){
@@ -139,17 +147,6 @@ public class BattleManager {
             UserBattlePacket userBattlePacket1 = new UserBattlePacket(-1, "SERVER", "EXIT", "ALL", args);
             AcceptServer.sendObjectToAll(userBattlePacket1);
         }
-//        int count=0;
-//        for(int i=0;i<3;i++){
-//            if(battleData.playerPocketMonList.get(username).get(i).isDead==true){
-//                count+=1;
-//            }
-//            if(count==3) {
-//                List<Integer> args = new ArrayList<>();
-//                UserBattlePacket userBattlePacket1 = new UserBattlePacket(-1, "SERVER", "EXIT", "ALL", args);
-//                AcceptServer.sendObjectToAll(userBattlePacket1);
-//            }
-//        }
     }
     private static void createBattleService(UserBattlePacket userBattlePacket) {
         ServerLogPanel.appendText("Create room by id " + " : [" + roomId +"]" +"[" +userBattlePacket.target+","+userBattlePacket.username+"]");
@@ -165,9 +162,8 @@ public class BattleManager {
 
         AcceptServer.sendObjectByUsername(userBattlePacket.username,userBattlePacket);
         AcceptServer.sendObjectByUsername(userBattlePacket.target,userBattlePacket);
-
+        sendSwapAndWaitPacket(userBattlePacket.username,userBattlePacket.target);
         roomId++;
-
     }
     private static void sendBattleRequest(UserBattlePacket userBattlePacket) {
         ServerLogPanel.appendText("Send battle request");

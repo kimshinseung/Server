@@ -14,10 +14,11 @@ import java.util.Map;
 
 public class BattleData {
     public int roomId = -1;
+    public String currentTurnUsername = "";
     public Map<String,String> playerState = new HashMap<>();
     public Map<String,Integer> currentPocketMon = new HashMap<>();
     public Map<String, List<BattlePocketData>> playerPocketMonList = new HashMap<>();
-    public Map<String, UserBattlePacket> playerCommand = new HashMap<>();
+    //public Map<String, UserBattlePacket> playerCommand = new HashMap<>();
     public BattleData(List<String> player){
         for (String username : player){
             playerState.put(username,"SELECT");
@@ -35,9 +36,10 @@ public class BattleData {
                 pocketMonsterList.add(battlePocketData);
             }
             currentPocketMon.put(username,0);
-            playerCommand.put(username,null);
+//            playerCommand.put(username,null);
             playerPocketMonList.put(username,pocketMonsterList);
         }
+        currentTurnUsername = player.get(0);
     }
     public int selectPocketMonByIndex(String username,int index){
         //ServerLogPanel.appendText(username + "/ Input index : " + index);
@@ -100,15 +102,15 @@ public class BattleData {
             }
         }
     }
-    public boolean addBattleProgress(UserBattlePacket userBattlePacket) {
-        playerCommand.put(userBattlePacket.username, userBattlePacket);
-        for (UserBattlePacket ubp : playerCommand.values()) {
-            if (ubp == null) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    public boolean addBattleProgress(UserBattlePacket userBattlePacket) {
+//        playerCommand.put(userBattlePacket.username, userBattlePacket);
+//        for (UserBattlePacket ubp : playerCommand.values()) {
+//            if (ubp == null) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
     public boolean checkPlayerDefeat(String username)
     {
         for (BattlePocketData pocketData : playerPocketMonList.get(username)){
@@ -128,5 +130,10 @@ public class BattleData {
             result.add(i);
         }
         return result;
+    }
+    public String swapTurn(){
+        String opponentName = getOpponent(currentTurnUsername);
+        currentTurnUsername = opponentName;
+        return opponentName;
     }
 }
