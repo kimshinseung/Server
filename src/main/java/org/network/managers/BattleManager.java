@@ -7,6 +7,7 @@ import org.network.data.BattlePocketData;
 import org.network.data.PocketMonData;
 import org.network.packet.UserBattlePacket;
 import org.network.packet.UserChatPacket;
+import org.network.pocketmon.PocketMonster;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,16 @@ public class BattleManager {
         if (userBattlePacket.commandType.equals("CHANGE")) return;
         int roomId = roomMap.get(userBattlePacket.username);
         BattleData battleData = roomBattleData.get(roomId);
+        if (battleData.battleState.equals("END")){
+            String user1 = userBattlePacket.username;
+            String user2 = battleData.getOpponent(user1);
+            int currentRoom = roomMap.get(user1);
+            roomMap.remove(user2);
+            roomMap.remove(user1);
+            roomBattleData.remove(currentRoom);
+            ServerLogPanel.appendText("["+user1+","+user2+"] room battle end. delete room.");
+            return;
+        }
         String opponentName = battleData.getOpponent(userBattlePacket.username);
         sendSwapAndWaitPacket(opponentName,userBattlePacket.username);
 //        int roomId = roomMap.get(userBattlePacket.username);
@@ -60,11 +71,22 @@ public class BattleManager {
                 new ArrayList<>()
         );
         AcceptServer.sendObjectByUsername(turnUsername,userBattlePacket);
+        //sendBattleLogToUsername(turnUsername,"당신의 턴 입니다.");
         userBattlePacket.target = waitUsername;
         userBattlePacket.commandType = "WAIT";
         AcceptServer.sendObjectByUsername(waitUsername,userBattlePacket);
+        //sendBattleLogToUsername(waitUsername,"상대의 턴 입니다.");
     }
-
+    private static void sendBattleLogToUsername(String username,String log){
+        UserBattlePacket userBattlePacket = new UserBattlePacket(
+                -1,
+                "SERVER",
+                "BATTLE_LOG",
+                log,
+                new ArrayList<>()
+        );//로그 타입의 패킷일 때는 타겟을 배틀 로그로 사용
+        AcceptServer.sendObjectByUsername(username,userBattlePacket);
+    }
     private static void applyChangeBattlePacket(UserBattlePacket userBattlePacket) {
         int roomId = roomMap.get(userBattlePacket.username);
         BattleData battleData = roomBattleData.get(roomId);
@@ -81,10 +103,20 @@ public class BattleManager {
         List<Integer> args = new ArrayList<>();
         args.add(changedPocketDataIndex);
         userBattlePacket.args = args;
-        for (String username : battleData.playerPocketMonList.keySet()){
-            AcceptServer.sendObjectByUsername(username,battleLog);
-            AcceptServer.sendObjectByUsername(username,userBattlePacket);
-        }
+
+        AcceptServer.sendObjectByUsername(userBattlePacket.username,battleLog);
+        AcceptServer.sendObjectByUsername(userBattlePacket.username,userBattlePacket);
+
+        String opponent = battleData.getOpponent(userBattlePacket.username);
+        AcceptServer.sendObjectByUsername(opponent,battleLog);
+        AcceptServer.sendObjectByUsername(opponent,userBattlePacket);
+
+        int pocketId = battleData.getCurrentPocketDataByUsername(userBattlePacket.username).pocketId;
+        String msg = userBattlePacket.username + "님이<br>" +
+                PocketMonData.monsterInfo.get(pocketId).getName()+"으로<br>포켓몬을 교체하셨습니다.";
+        sendBattleLogToUsername(userBattlePacket.username, msg);
+        sendBattleLogToUsername(opponent,msg);
+
         battleData.playerState.replace(userBattlePacket.username,"COMMAND");
         updatePocketMonHealth(battleData);
     }
@@ -94,14 +126,24 @@ public class BattleManager {
         int roomId = roomMap.get(userBattlePacket.username);
         BattleData battleData = roomBattleData.get(roomId);
         battleData.giveHealToCurrentPocketMon(userBattlePacket);
+        String msg = userBattlePacket.username + "님이<br>" + (userBattlePacket.args.get(0)==0?"라즈베리열매":"베리베리열매") + "를<br>사용하셨습니다.";
+        sendBattleLogToUsername(userBattlePacket.username, msg);
+        sendBattleLogToUsername(battleData.getOpponent(userBattlePacket.username),msg);
         updatePocketMonHealth(battleData);
     }
 
     private static void attackToTarget(UserBattlePacket userBattlePacket) {
-        ServerLogPanel.appendText(userBattlePacket.username + " attack by index : " + userBattlePacket.args.get(0));
+        int usedSkillNum = userBattlePacket.args.get(0);
+        ServerLogPanel.appendText(userBattlePacket.username + " attack by index : " + usedSkillNum);
         int roomId = roomMap.get(userBattlePacket.username);
         BattleData battleData = roomBattleData.get(roomId);
         battleData.giveDamageToCurrentPocketMon(userBattlePacket);
+        PocketMonster pocketMon = PocketMonData.monsterInfo.get(battleData.getCurrentPocketDataByUsername(userBattlePacket.username).pocketId);
+        String msg = userBattlePacket.username + "님의 " + pocketMon.getName()+"(이)가<br>" +
+                (usedSkillNum==-1?"기본공격":pocketMon.getSkill_list()[usedSkillNum].getName())+
+                "을 사용하셨습니다.";
+        sendBattleLogToUsername(userBattlePacket.username, msg);
+        sendBattleLogToUsername(battleData.getOpponent(userBattlePacket.username),msg);
         updatePocketMonHealth(battleData);
     }
     private static void updatePocketMonHealth(BattleData battleData){
@@ -145,7 +187,19 @@ public class BattleManager {
             ServerLogPanel.appendText(username + " is defeated");
             List<Integer> args = new ArrayList<>();
             UserBattlePacket userBattlePacket1 = new UserBattlePacket(-1, "SERVER", "EXIT", "ALL", args);
-            AcceptServer.sendObjectToAll(userBattlePacket1);
+            String opponent = battleData.getOpponent(username);
+            AcceptServer.sendObjectByUsername(username,userBattlePacket1);
+            AcceptServer.sendObjectByUsername(opponent,userBattlePacket1);
+            String msg = opponent + "님이 " + username+"님에게 승리하였습니다.";
+            UserChatPacket userChatPacket = new UserChatPacket(
+                    -1,
+                    "SERVER",
+                    msg,
+                    "-ALL-"
+            );
+            AcceptServer.sendObjectToAll(userChatPacket);
+            ServerLogPanel.appendText("");
+            battleData.battleState = "END";
         }
     }
     private static void createBattleService(UserBattlePacket userBattlePacket) {
@@ -168,5 +222,19 @@ public class BattleManager {
     private static void sendBattleRequest(UserBattlePacket userBattlePacket) {
         ServerLogPanel.appendText("Send battle request");
         AcceptServer.sendObjectByUsername(userBattlePacket.target,userBattlePacket);
+    }
+
+    public static void destroyRoomByUsername(String username) {
+        int roomId = roomMap.get(username);
+        BattleData battleData = roomBattleData.get(roomId);
+        String user2 = battleData.getOpponent(username);
+        int currentRoom = roomMap.get(username);
+        roomMap.remove(user2);
+        roomMap.remove(username);
+        roomBattleData.remove(currentRoom);
+        ServerLogPanel.appendText("["+username+","+user2+"] room battle end. delete room.");
+        UserBattlePacket userBattlePacket= new UserBattlePacket(-1,"SERVER","EXIT","ALL",new ArrayList<>());
+        AcceptServer.sendObjectByUsername(username,userBattlePacket);
+        AcceptServer.sendObjectByUsername(user2,userBattlePacket);
     }
 }

@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class BattleData {
     public int roomId = -1;
+    public String battleState = "RUN";
     public String currentTurnUsername = "";
     public Map<String,String> playerState = new HashMap<>();
     public Map<String,Integer> currentPocketMon = new HashMap<>();

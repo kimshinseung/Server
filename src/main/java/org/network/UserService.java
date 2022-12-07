@@ -54,9 +54,7 @@ public class UserService extends Thread{
     public void Logout() {
         try {
             AcceptServer.removeUser(this);
-            List<Integer> args=new ArrayList<>();
-            UserBattlePacket userBattlePacket= new UserBattlePacket(-1,"SERVER","EXIT","ALL",args);
-            AcceptServer.sendObjectToAll(userBattlePacket);
+            BattleManager.destroyRoomByUsername(userData.userName);
             oos.close();
             ois.close();
         } catch (IOException e) {
