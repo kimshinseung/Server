@@ -9,7 +9,7 @@ public class pikachu extends PocketMonster {
         Skill s1 = new Skill("몸통박치기",30);
         Skill s2 = new Skill("백만볼트",50);
         Skill s3 = new Skill("전광석화",40);
-        Skill s4 = new Skill("전기자석파",0);
+        Skill s4 = new Skill("전기자석파",40);
         Skill[] temp_skill = new Skill[4];
         temp_skill[0]=s1;
         temp_skill[1]=s2;

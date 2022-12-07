@@ -9,7 +9,7 @@ public class isanghessi extends PocketMonster {
         Skill s1 = new Skill("몸통박치기",30);
         Skill s2 = new Skill("넝쿨채찍",40);
         Skill s3 = new Skill("잎날가르기",40);
-        Skill s4 = new Skill("수면가루",0);
+        Skill s4 = new Skill("수면가루",30);
 
         Skill[] temp_skill = new Skill[4];
         temp_skill[0]=s1;
