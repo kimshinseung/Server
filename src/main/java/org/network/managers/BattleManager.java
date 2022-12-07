@@ -42,15 +42,6 @@ public class BattleManager {
             roomMap.remove(user1);
             roomBattleData.remove(currentRoom);
             ServerLogPanel.appendText("["+user1+","+user2+"] room battle end. delete room.");
-            UserData user = LoginManager.getUserDataByUsername(userBattlePacket.username);
-            UserData opponent = LoginManager.getUserDataByUsername(userBattlePacket.target);
-            //ServerLogPanel.appendText("Here");
-            if (user != null){
-                user.state = "LOBBY";
-            }
-            if (opponent != null){
-                opponent.state = "LOBBY";
-            }
             return;
         }
         String opponentName = battleData.getOpponent(userBattlePacket.username);
@@ -210,16 +201,6 @@ public class BattleManager {
         roomUserList.add(userBattlePacket.target);
         BattleData battleData = new BattleData(roomUserList);
         roomBattleData.put(roomId,battleData);
-        UserData user = LoginManager.getUserDataByUsername(userBattlePacket.username);
-        UserData opponent = LoginManager.getUserDataByUsername(userBattlePacket.target);
-        //ServerLogPanel.appendText("Here");
-        if (user != null){
-            user.state = "BATTLE";
-        }
-        if (opponent != null){
-            opponent.state = "BATTLE";
-        }
-
 
         AcceptServer.sendObjectByUsername(userBattlePacket.username,userBattlePacket);
         AcceptServer.sendObjectByUsername(userBattlePacket.target,userBattlePacket);
@@ -227,14 +208,6 @@ public class BattleManager {
         roomId++;
     }
     private static void sendBattleRequest(UserBattlePacket userBattlePacket) {
-        UserData user = LoginManager.getUserDataByUsername(userBattlePacket.target);
-        if (user==null){
-            return;
-        }
-        if (user.state.equals("BATTLE")){
-            ServerLogPanel.appendText("대상은 현재 배틀중 입니다.");
-            return;
-        }
         ServerLogPanel.appendText("Send battle request");
         AcceptServer.sendObjectByUsername(userBattlePacket.target,userBattlePacket);
     }
@@ -251,14 +224,5 @@ public class BattleManager {
         UserBattlePacket userBattlePacket= new UserBattlePacket(-1,"SERVER","EXIT","ALL",new ArrayList<>());
         AcceptServer.sendObjectByUsername(username,userBattlePacket);
         AcceptServer.sendObjectByUsername(user2,userBattlePacket);
-        UserData user = LoginManager.getUserDataByUsername(userBattlePacket.username);
-        UserData opponent = LoginManager.getUserDataByUsername(userBattlePacket.target);
-        //ServerLogPanel.appendText("Here");
-        if (user != null){
-            user.state = "LOBBY";
-        }
-        if (opponent != null){
-            opponent.state = "LOBBY";
-        }
     }
 }
